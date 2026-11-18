@@ -4,6 +4,23 @@ Plugin local para vincular cursos de Moodle con Teams existentes mediante CSV, p
 
 **Versión alfa: no es una garantía de sincronización ni una validación para uso masivo.** El operador reportó altas y bajas de alumnos en Teams y pestañas con vínculos funcionando en **un par de cursos de Moodle**. No se ha probado el uso masivo ni se garantiza el comportamiento en otros entornos; consulte el alcance y las pruebas pendientes en [PRUEBAS.md](PRUEBAS.md). Este repositorio tiene historial independiente del entorno original e incluye la GPLv3 oficial y las atribuciones en [LICENCIAS.md](LICENCIAS.md).
 
+## Funcionalidades
+
+| Funcionalidad | Qué permite hacer | Condiciones y límites |
+| --- | --- | --- |
+| Vinculación mediante CSV | Asociar cursos de Moodle con equipos de Teams existentes usando `course_id,team_name`. | Usa la caché local de Teams; no crea equipos ni sobrescribe vínculos existentes. Máximo 100 registros y 1 MiB por archivo. |
+| Previsualización y confirmación | Revisar las asociaciones propuestas antes de aplicarlas. | Requiere administración del sitio. La previsualización es de un solo uso, está ligada al usuario y caduca a los 15 minutos. |
+| Gestión de membresías | Incorporar alumnos al equipo y retirar los administrados cuando dejan de pertenecer al curso; contemplar docentes como propietarios según las capacidades de Microsoft 365. | Requiere identidades válidas, configuración y parche compatibles. Solo actúa sobre el alcance cuya responsabilidad tiene registrada; no administra indiscriminadamente a todos los miembros del equipo. |
+| Trabajo programado | Encolar cambios y procesar membresías mediante tareas, con límites por ejecución y espera progresiva ante errores. | No es sincronización instantánea ni garantiza completar cada ejecución. Depende de la ejecución efectiva de las tareas y del acceso a Microsoft Graph. |
+| Reuniones | Mostrar vínculos detectados en las publicaciones del canal General para acceder a reuniones en Teams. | No es una agenda completa ni consulta todas las reuniones del calendario. |
+| Grabaciones y material | Mostrar enlaces a carpetas verificables de grabaciones y material de clases en Microsoft 365. | Publica vínculos: no copia los archivos a Moodle ni concede permisos sobre ellos. |
+| Pestañas del curso | Dar acceso a **Reuniones**, **Grabaciones** y **Material**, priorizándolas junto a **Curso** y **Actividades**. | Se aplica donde hay un vínculo válido y los nodos requeridos; conserva el desbordamiento a **Más** en pantallas angostas. No es un editor configurable del orden. |
+| Herramientas de operación | Actualizar la caché de Teams mediante CLI y consultar diagnósticos acotados de trabajos pendientes. | La actualización exige condiciones de ejecución controladas; los diagnósticos no sustituyen comprobar el resultado remoto. |
+
+La gestión de membresías y el descubrimiento de enlaces son opciones independientes, **desactivadas por defecto**. No basta con importar el CSV para que se ejecuten: consulte [INSTALACION.md](INSTALACION.md) y [MEMBERSHIP-SYNC.md](MEMBERSHIP-SYNC.md). El parche O365 y la versión exacta indicada abajo son requisitos, no componentes instalados automáticamente por TeamsCSV. No use esta importación para Teams administrados por School Data Sync (SDS).
+
+**Alcance probado:** el operador reportó altas, bajas y pestañas con vínculos funcionando en un par de cursos. **No se ha probado el uso masivo**, la carga elevada ni todos los escenarios de error; los resultados y límites se detallan en [PRUEBAS.md](PRUEBAS.md).
+
 ## Pestañas del curso
 
 ![Pestañas Curso, Reuniones, Grabaciones, Material, Actividades y Más](docs/imagenes/pestanas-curso.png)

@@ -64,7 +64,7 @@ Los conteos siguientes corresponden a líneas de texto de los archivos importado
 
 | Ruta relativa | Líneas |
 | --- | ---: |
-| `README.md` | 53 |
+| `README.md` | 70 |
 | `INSTALACION.md` | 47 |
 | `MEMBERSHIP-SYNC.md` | 26 |
 | `SEGURIDAD.md` | 23 |
