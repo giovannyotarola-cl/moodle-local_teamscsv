@@ -1,6 +1,24 @@
-# Pruebas offline y límites
+# Pruebas realizadas y límites
 
-**No se ha acreditado una suite completa ni una sincronización real.** Tras restablecer Docker externamente, se ejecutó una vez el subconjunto portable con la imagen fijada: cinco archivos de pruebas terminaron con código 0 (20 casos del parser, 9 del CLI, 3 grupos del planificador, 10 del almacenamiento y 2 de navegación: 44 líneas PASS). El lint de los 51 archivos PHP terminó con código 0, sin errores de sintaxis. No fue necesario corregir código ni configuración PHP.
+## Prueba manual de uso reportada
+
+El responsable del despliegue reportó pruebas manuales satisfactorias en **un par de cursos de Moodle** del entorno institucional:
+
+- Incorporación de alumnos al equipo de Microsoft Teams al sincronizar las matrículas.
+- Retirada de alumnos del equipo tras desmatricularlos del curso de Moodle.
+- Aparición de las pestañas **Reuniones**, **Grabaciones** y **Material** con sus vínculos.
+
+**No se ha probado el uso de forma masiva.** Estos resultados no permiten afirmar capacidad, rendimiento ni fiabilidad para grandes cantidades de cursos o alumnos. Tampoco acreditan todos los casos de error, concurrencia o interrupciones de Microsoft Graph.
+
+Esta evidencia fue reportada por el operador: no es una ejecución automatizada ni una verificación independiente de esos casos en el entorno institucional. No se publican datos de alumnos ni identificadores de la institución.
+
+![Navegación del curso con las pestañas Reuniones, Grabaciones y Material](docs/imagenes/pestanas-curso.png)
+
+La captura aportada por el operador muestra solo las pestañas, sin el nombre ni el código del curso. Es evidencia visual de su disposición, no una prueba de altas, bajas o carga.
+
+## Pruebas automatizadas offline
+
+**No se ha acreditado una suite completa.** Tras restablecer Docker externamente, se ejecutó una vez el subconjunto portable con la imagen fijada: cinco archivos de pruebas terminaron con código 0 (20 casos del parser, 9 del CLI, 3 grupos del planificador, 10 del almacenamiento y 2 de navegación: 44 líneas PASS). El lint de los 51 archivos PHP terminó con código 0, sin errores de sintaxis. No fue necesario corregir código ni configuración PHP.
 
 Los dos intentos anteriores habían terminado con código 1 antes de iniciar PHP por falta del motor Linux; quedan sustituidos como evidencia de ejecución por esta comprobación. No se arrancaron servicios de aplicación, no se montaron datos externos y no se descargaron imágenes.
 
@@ -67,4 +85,4 @@ Se conservaron estos archivos para no ocultar cobertura ni alterar pruebas de do
 
 ## Evidencia que falta
 
-Siguen pendientes las pruebas del parche sobre su upstream exacto, integración Moodle/base de datos, Privacy API, concurrencia real, tareas de membresía con sus diagnósticos, navegación real y Microsoft Graph. No se hicieron pruebas nuevas en producción. El empaquetado no cambió lógica: no hay un RED significativo para esta copia/documentación; su comprobación principal es la igualdad byte a byte respecto de las fuentes seleccionadas.
+La prueba manual reportada no sustituye la verificación sistemática del parche sobre su upstream exacto, integración Moodle/base de datos, Privacy API, concurrencia real, tareas de membresía con sus diagnósticos, navegación y errores de Microsoft Graph. Siguen pendientes las pruebas de uso masivo y de carga. Durante el empaquetado no se ejecutaron pruebas nuevas en producción; las pruebas manuales posteriores fueron realizadas y reportadas por el operador. El empaquetado no cambió lógica: no hay un RED significativo para esta copia/documentación; su comprobación principal es la igualdad byte a byte respecto de las fuentes seleccionadas.

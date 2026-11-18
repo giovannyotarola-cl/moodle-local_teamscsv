@@ -1,6 +1,6 @@
-# Inventario del candidato local
+# Inventario de la distribución
 
-Se importaron 53 archivos (8.604 líneas), idénticos byte a byte a la selección de fuentes actuales. No se copiaron commits ni se inicializó Git. Las diferencias respecto de esa selección son siete documentos Markdown públicos, el texto oficial `LICENSE` y `.gitignore`: 62 archivos en total. No hubo normalización de saltos de línea, sanitización de código ni modificación de pruebas.
+Se importaron 53 archivos (8.604 líneas), idénticos byte a byte a la selección de fuentes actuales. No se copió el historial original: se creó un historial independiente para esta distribución. Se añadieron siete documentos Markdown públicos, el texto oficial `LICENSE`, `.gitignore` y una captura recortada de las pestañas: 63 archivos en total. No se modificó la lógica ni las pruebas del plugin; Git puede normalizar finales de línea al almacenar texto.
 
 Los conteos siguientes corresponden a líneas de texto de los archivos importados, no a cobertura ni a pruebas ejecutadas.
 
@@ -64,14 +64,14 @@ Los conteos siguientes corresponden a líneas de texto de los archivos importado
 
 | Ruta relativa | Líneas |
 | --- | ---: |
-| `README.md` | 47 |
+| `README.md` | 53 |
 | `INSTALACION.md` | 47 |
 | `MEMBERSHIP-SYNC.md` | 26 |
 | `SEGURIDAD.md` | 23 |
-| `PRUEBAS.md` | 70 |
+| `PRUEBAS.md` | 88 |
 | `LICENCIAS.md` | 28 |
 
-Este inventario es el séptimo documento. Consulte las limitaciones de pruebas y licencias antes de publicar; la identidad de archivos no demuestra funcionamiento ni derechos de redistribución.
+Este inventario es el séptimo documento. Consulte las limitaciones de pruebas y licencias antes de distribuir; la identidad de archivos no demuestra funcionamiento ni derechos de redistribución.
 
 ## Otros archivos añadidos
 
@@ -81,3 +81,7 @@ Este inventario es el séptimo documento. Consulte las limitaciones de pruebas y
 | `.gitignore` | 36 |
 
 `LICENSE` es texto oficial importado, no documentación redactada para ajustar un presupuesto de líneas.
+
+## Imagen de navegación
+
+`docs/imagenes/pestanas-curso.png`: captura PNG de 673 × 60 píxeles aportada por el operador y recortada a las pestañas, sin metadatos ni nombre o código del curso. No representa una prueba de uso masivo.

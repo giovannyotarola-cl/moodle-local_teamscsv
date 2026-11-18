@@ -2,7 +2,13 @@
 
 Plugin local para vincular cursos de Moodle con Teams existentes mediante CSV, preparar membresías administradas y mostrar enlaces de reuniones, grabaciones y material de clases.
 
-**Versión alfa: no es una garantía de sincronización ni una distribución validada para producción.** Esta carpeta es un candidato local para un repositorio independiente, sin historial del entorno original. Incluye la GPLv3 oficial y las atribuciones en [LICENCIAS.md](LICENCIAS.md); la publicación queda pendiente de la verificación independiente del candidato.
+**Versión alfa: no es una garantía de sincronización ni una validación para uso masivo.** El operador reportó altas y bajas de alumnos en Teams y pestañas con vínculos funcionando en **un par de cursos de Moodle**. No se ha probado el uso masivo ni se garantiza el comportamiento en otros entornos; consulte el alcance y las pruebas pendientes en [PRUEBAS.md](PRUEBAS.md). Este repositorio tiene historial independiente del entorno original e incluye la GPLv3 oficial y las atribuciones en [LICENCIAS.md](LICENCIAS.md).
+
+## Pestañas del curso
+
+![Pestañas Curso, Reuniones, Grabaciones, Material, Actividades y Más](docs/imagenes/pestanas-curso.png)
+
+Captura aportada por el operador, recortada para mostrar únicamente la navegación. Ilustra la disposición de las pestañas; no acredita por sí sola la sincronización de membresías ni el funcionamiento a gran escala.
 
 ## Compatibilidad exacta
 
@@ -40,7 +46,7 @@ La previsualización lee la caché local, no verifica el estado remoto en tiempo
 - `patches/local_o365-managed-membership.patch`: parche obligatorio para la versión exacta de Microsoft 365.
 - Documentación pública en español. Las cadenas y comentarios originales del código se conservan sin traducciones que alteren su fidelidad.
 
-No se incluyen Moodle, Microsoft 365, credenciales, CSV reales, ZIP históricos, respaldos, registros, capturas ni herramientas de navegador. No hay descarga automática de fixtures ni instalación de dependencias.
+No se incluyen Moodle, Microsoft 365, credenciales, CSV reales, ZIP históricos, respaldos, registros ni herramientas de navegador. La única captura incluida muestra las pestañas, sin el nombre ni el código del curso. No hay descarga automática de fixtures ni instalación de dependencias.
 
 ## Errores y contribuciones
 
