@@ -1,0 +1,36 @@
+# Configuración y datos privados locales; nunca son parte de la distribución.
+/config.php
+/config-local.php
+/.env
+/.env.*
+/private/
+/moodledata/
+/uploads/
+*.pem
+*.key
+
+# Respaldos, archivos comprimidos y volcados.
+/backups/
+*.bak
+*.backup
+*.zip
+*.tar
+*.gz
+*.7z
+*.sql
+
+# Salidas, registros y dependencias regenerables.
+/build/
+/dist/
+/logs/
+*.log
+node_modules/
+vendor/
+/.phpunit.cache/
+/.phpunit.result.cache
+
+# Herramientas locales del editor.
+/.idea/
+/.vscode/
+*.swp
+*.swo
