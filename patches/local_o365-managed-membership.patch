@@ -1,0 +1,384 @@
+diff --git a/classes/feature/coursesync/main.php b/classes/feature/coursesync/main.php
+--- a/classes/feature/coursesync/main.php
++++ b/classes/feature/coursesync/main.php
+@@ -202,6 +202,9 @@
+ 
+         $objectrecs = $DB->get_recordset_sql($sql, $params);
+         foreach ($objectrecs as $objectrec) {
++            if (utils::is_membership_managed((int)$objectrec->courseid, $objectrec->objectid)) {
++                continue;
++            }
+             $metadata = (!empty($objectrec->metadata)) ? @json_decode($objectrec->metadata, true) : [];
+             if (is_array($metadata) && !empty($metadata['softdelete'])) {
+                 $this->mtrace('Attempting to restore group for course #' . $objectrec->courseid, $baselevel + 1);
+@@ -412,6 +415,9 @@
+         int $baselevel = 3
+     ): bool {
+         global $SESSION;
++        if (utils::is_membership_managed(0, $groupobjectid)) {
++            return false;
++        }
+         if (empty($owners) && empty($members)) {
+             $this->mtrace('Skip adding owners / members to the group. Reason: No users to add.', $baselevel);
+             return false;
+@@ -551,6 +557,10 @@
+                         }
+                     }
+ 
++                    // Recheck after reads, propagation waits and retries; never cache this decision.
++                    if (utils::is_membership_managed(0, $groupobjectid)) {
++                        return false;
++                    }
+                     $response = $this->graphclient->add_chunk_users_to_group($groupobjectid, $role, $users);
+                     if ($response) {
+                         if ($role == 'owner') {
+@@ -983,6 +993,9 @@
+         // creation request. Pass only the first owner here; remaining owners and members are added
+         // after successful creation via add_group_owners_and_members_to_group().
+         try {
++            if (utils::is_membership_managed((int)$course->id)) {
++                return false;
++            }
+             $response = $this->graphclient->create_team_from_template(
+                 $teamname,
+                 $description,
+@@ -1186,6 +1199,9 @@
+                         global $DB;
+                         try {
+                             // Delete the group from Office 365.
++                            if (utils::is_membership_managed((int)$course->id, $groupobjectid)) {
++                                return false;
++                            }
+                             $this->graphclient->delete_group($groupobjectid);
+                             $this->mtrace('Deleted group ' . $groupobjectid . ' from Office 365.', $baselevel + 1);
+ 
+@@ -1478,6 +1494,10 @@
+     public function create_group_for_course(stdClass $course, int $baselevel = 2): bool {
+         global $SESSION;
+ 
++        if (utils::is_membership_managed((int)$course->id)) {
++            return false;
++        }
++
+         $this->mtrace('Process course #' . $course->id, $baselevel);
+ 
+         // Check if a direct team creation template is configured (educationStaff, educationProfessionalLearningCommunity).
+@@ -1630,6 +1650,10 @@
+                 $this->mtrace('Course processing limit of ' . $courselimit . ' reached. Exit.', 1);
+                 $this->mtrace('', 1);
+                 break;
++            }
++
++            if (utils::is_membership_managed((int)$course->id, $course->groupobjectid)) {
++                continue;
+             }
+ 
+             $this->mtrace('Process course #' . $course->id, 2);
+@@ -2064,6 +2088,10 @@
+     ): bool {
+         global $DB;
+ 
++        if (utils::is_membership_managed((int)$course->id, $o365object->objectid)) {
++            return false;
++        }
++
+         // Rename existing group.
+         try {
+             $existinggroup = $this->graphclient->get_group($o365object->objectid);
+@@ -2196,6 +2224,10 @@
+      */
+     public function process_course_team_user_sync_from_moodle_to_microsoft(int $courseid, string $groupobjectid = '') {
+         global $DB;
++
++        if (utils::is_membership_managed($courseid, $groupobjectid)) {
++            return false;
++        }
+ 
+         $this->mtrace('Syncing Microsoft group owners / members for course #' . $courseid);
+ 
+@@ -2435,6 +2467,9 @@
+      * @throws moodle_exception
+      */
+     public function add_member_to_group(string $groupobjectid, string $userobjectid) {
++        if (utils::is_membership_managed(0, $groupobjectid)) {
++            return;
++        }
+         if (utils::is_team_created_from_group($groupobjectid)) {
+             if ($this->is_team_locked($groupobjectid)) {
+                 $this->graphclient->add_member_to_group_using_group_api($groupobjectid, $userobjectid);
+@@ -2460,6 +2495,9 @@
+      * @throws moodle_exception
+      */
+     public function add_owner_to_group(string $groupobjectid, string $userobjectid) {
++        if (utils::is_membership_managed(0, $groupobjectid)) {
++            return;
++        }
+         if (utils::is_team_created_from_group($groupobjectid)) {
+             try {
+                 $this->graphclient->add_owner_to_group_using_teams_api($groupobjectid, $userobjectid);
+@@ -2482,6 +2520,9 @@
+      * @param string $userobjectid
+      */
+     public function remove_member_from_group(string $groupobjectid, string $userobjectid) {
++        if (utils::is_membership_managed(0, $groupobjectid)) {
++            return;
++        }
+         $removed = false;
+         if (utils::is_team_created_from_group($groupobjectid)) {
+             if (!$this->is_team_locked($groupobjectid)) {
+@@ -2522,6 +2563,9 @@
+      * @param string $userobjectid
+      */
+     public function remove_owner_from_group(string $groupobjectid, string $userobjectid) {
++        if (utils::is_membership_managed(0, $groupobjectid)) {
++            return;
++        }
+         $removed = false;
+         if (utils::is_team_created_from_group($groupobjectid)) {
+             $aaduserconversationmemberid = '';
+@@ -2567,6 +2611,10 @@
+         ?array $connectedusers = null
+     ): bool {
+         global $DB;
++
++        if (utils::is_membership_managed($courseid, $groupobjectid)) {
++            return false;
++        }
+ 
+         $coursecontext = course::instance($courseid, IGNORE_MISSING);
+         if (!$coursecontext) {
+@@ -2832,6 +2880,10 @@
+      * @param string $groupobjectid The object ID of the Microsoft 365 group.
+      */
+     public function process_initial_course_team_user_sync(int $courseid, string $groupobjectid): void {
++        if (utils::is_membership_managed($courseid, $groupobjectid)) {
++            return;
++        }
++
+         $coursecontext = course::instance($courseid);
+ 
+         $this->mtrace('Perform initial Moodle course and Microsoft Teams user sync between course #' . $courseid .
+diff --git a/classes/feature/coursesync/utils.php b/classes/feature/coursesync/utils.php
+--- a/classes/feature/coursesync/utils.php
++++ b/classes/feature/coursesync/utils.php
+@@ -41,6 +41,48 @@
+  * A utility class for the group / team sync feature.
+  */
+ class utils {
++    /** @var int Execution-time isolation contract; callers must require this before registering/linking. */
++    public const MANAGED_MEMBERSHIP_GUARD_VERSION = 1;
++
++    /**
++     * Read-only exclusion, independent of plugin code, config and live mapping validity.
++     * Registry rows are durable: only explicit operator action may release a course.
++     * Never memoize or swallow lookup errors. A broken registry must not authorize writes.
++     *
++     * @param int $courseid Course ID, or zero for a group-only writer.
++     * @param string $groupobjectid Also protect shared, historical and newly remapped groups.
++     * @return bool Whether upstream membership/lifecycle writes must be skipped.
++     */
++    public static function is_membership_managed(int $courseid = 0, string $groupobjectid = ''): bool {
++        global $DB;
++
++        // Installing this patch before TeamsCSV is safe; no new settings or schema writes.
++        if (!$DB->get_manager()->table_exists('local_teamscsv_map')) {
++            return false;
++        }
++        if ($courseid && $DB->record_exists('local_teamscsv_map', ['courseid' => $courseid])) {
++            return true;
++        }
++        if ($groupobjectid === '') {
++            return false;
++        }
++
++        $sql = "SELECT 1
++                  FROM {local_teamscsv_map} m
++                  JOIN {local_o365_objects} o ON o.moodleid = m.courseid
++                 WHERE o.type = :type AND o.objectid = :objectid";
++        if ($DB->record_exists_sql($sql, ['type' => 'group', 'objectid' => $groupobjectid])) {
++            return true;
++        }
++
++        // Do NOT join on m.generationid: unlink/relink or a broken pointer cannot release old Teams.
++        $sql = "SELECT 1
++                  FROM {local_teamscsv_map} m
++                  JOIN {local_teamscsv_generation} g ON g.courseid = m.courseid
++                 WHERE g.teamid = :teamid";
++        return $DB->record_exists_sql($sql, ['teamid' => $groupobjectid]);
++    }
++
+     /**
+      * Determine whether the course sync feature is enabled or not.
+      *
+@@ -203,9 +245,16 @@
+     public static function delete_microsoft_365_group(int $courseid) {
+         global $DB;
+ 
++        if (static::is_membership_managed($courseid)) {
++            return;
++        }
++
+         $params = ['type' => 'group', 'subtype' => 'course', 'moodleid' => $courseid];
+         $objectrec = $DB->get_record('local_o365_objects', $params);
+         if (!empty($objectrec)) {
++            if (static::is_membership_managed($courseid, $objectrec->objectid)) {
++                return;
++            }
+             $graphclient = unified::instance_for_user();
+             $result = $graphclient->delete_group($objectrec->objectid);
+ 
+@@ -783,6 +832,10 @@
+         int $excluderoleid = 0
+     ): bool {
+         global $DB;
++
++        if (static::is_membership_managed($courseid)) {
++            return false;
++        }
+ 
+         if (empty($userid) || empty($courseid)) {
+             return false;
+diff --git a/classes/rest/o365api.php b/classes/rest/o365api.php
+--- a/classes/rest/o365api.php
++++ b/classes/rest/o365api.php
+@@ -139,6 +139,140 @@
+     }
+ 
+     /**
++     * Opt-in, single-attempt transport inherited by unified; never calls apicall/checktoken.
++     * Only the public Graph v1.0 user-membership endpoints are supported. A current token
++     * must already exist: refreshing it here would violate the one-request budget.
++     * Native per-call cURL avoids Moodle wrapper retries, redirects and shared options.
++     *
++     * @param string $httpmethod GET, POST or DELETE (case insensitive).
++     * @param string $path Relative /groups/{uuid}/owners|members with bounded GET pagination,
++     *   /$ref for POST, or /{useruuid}/$ref for DELETE. Never delete a directory object.
++     * @param array $data POST requires only @odata.id => https://graph.microsoft.com/v1.0/users/{uuid}.
++     *   GET and DELETE require an empty array.
++     * @param array $options Must be empty; callers cannot override transport safety settings.
++     * @return array Actual integer status, raw body, and strict ok flag (GET200 envelope or write204).
++     *   GET content/pagination still requires the caller's complete membership validation.
++     *   All non2xx, redirects, asynchronous202 and invalid envelopes have ok=false. Queue retry locally.
++     * @throws \InvalidArgumentException On invalid endpoints, data, options or nonpublic Graph resource.
++     * @throws \RuntimeException On stale token, setup, timeout, oversized response or transport failure.
++     */
++    public function managed_membership_request(string $httpmethod, string $path, array $data = [], array $options = []): array {
++        $httpmethod = strtolower($httpmethod);
++        $uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
++        $endpoint = '/groups/' . $uuid . '/(?:owners|members)';
++        $invalid = 'Invalid managed membership request.';
++        if ($options !== [] || strlen($path) > 8192 || preg_match('/[^\x21-\x7e]|[\\\\#]/', $path) ||
++                $this->get_apiuri() !== 'https://graph.microsoft.com') {
++            throw new \InvalidArgumentException($invalid);
++        }
++        if ($httpmethod === 'get') {
++            if ($data !== [] || !preg_match('~^' . $endpoint . '(?:\?(.+))?$~D', $path, $matches)) {
++                throw new \InvalidArgumentException($invalid);
++            }
++            $params = [];
++            if (isset($matches[1])) {
++                if (preg_match('/%(?![0-9a-fA-F]{2})/', $matches[1])) {
++                    throw new \InvalidArgumentException($invalid);
++                }
++                foreach (explode('&', $matches[1]) as $pair) {
++                    $split = explode('=', $pair, 2);
++                    $key = rawurldecode($split[0]);
++                    if (count($split) !== 2 || !in_array($key, ['$top', '$skiptoken'], true) || isset($params[$key])) {
++                        throw new \InvalidArgumentException($invalid);
++                    }
++                    $params[$key] = rawurldecode($split[1]);
++                }
++                if ((isset($params['$top']) && !preg_match('/^[1-9][0-9]{0,2}$/D', $params['$top'])) ||
++                        (isset($params['$skiptoken']) && !preg_match('/^[\x21-\x7e]{1,4096}$/D', $params['$skiptoken']))) {
++                    throw new \InvalidArgumentException($invalid);
++                }
++            }
++        } else if ($httpmethod === 'post') {
++            if (!preg_match('~^' . $endpoint . '/\$ref$~D', $path) || array_keys($data) !== ['@odata.id'] ||
++                    !is_string($data['@odata.id']) ||
++                    !preg_match('~^https://graph\.microsoft\.com/v1\.0/users/' . $uuid . '$~D', $data['@odata.id'])) {
++                throw new \InvalidArgumentException($invalid);
++            }
++        } else if ($httpmethod === 'delete') {
++            if ($data !== [] || !preg_match('~^' . $endpoint . '/' . $uuid . '/\$ref$~D', $path)) {
++                throw new \InvalidArgumentException($invalid);
++            }
++        } else {
++            throw new \InvalidArgumentException($invalid);
++        }
++
++        $access = $this->token->get_token();
++        if ($this->token->is_expired() !== false || !is_string($access) ||
++                !preg_match('/^[\x21-\x7e]+$/D', $access)) {
++            throw new \RuntimeException('Managed membership requires a current token.');
++        }
++
++        $failure = 'Managed membership transport failed.';
++        $curl = curl_init();
++        if ($curl === false) {
++            throw new \RuntimeException($failure);
++        }
++        $body = '';
++        try {
++            $curloptions = [
++                CURLOPT_URL => 'https://graph.microsoft.com/v1.0' . $path,
++                CURLOPT_CUSTOMREQUEST => strtoupper($httpmethod),
++                // A fresh HTTP/1.1 handle cannot hide HTTP/2 refused-stream retries.
++                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
++                CURLOPT_HTTPHEADER => ['Accept: application/json', 'Content-Type: application/json',
++                    'Authorization: Bearer ' . $access],
++                CURLOPT_RETURNTRANSFER => true,
++                CURLOPT_HEADER => false,
++                CURLOPT_CONNECTTIMEOUT => 5,
++                CURLOPT_TIMEOUT => 15,
++                CURLOPT_FOLLOWLOCATION => false,
++                CURLOPT_MAXREDIRS => 0,
++                CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
++                CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
++                CURLOPT_SSL_VERIFYPEER => true,
++                CURLOPT_SSL_VERIFYHOST => 2,
++                // Do not inherit process proxy settings or mutate the shared Moodle HTTP client.
++                CURLOPT_PROXY => '',
++                CURLOPT_WRITEFUNCTION => static function($handle, string $chunk) use (&$body): int {
++                    if (strlen($body) + strlen($chunk) > 4194304) {
++                        return 0;
++                    }
++                    $body .= $chunk;
++                    return strlen($chunk);
++                },
++            ];
++            if ($httpmethod === 'post') {
++                $curloptions[CURLOPT_POSTFIELDS] = json_encode($data, JSON_THROW_ON_ERROR);
++            }
++            if (!curl_setopt_array($curl, $curloptions)) {
++                throw new \RuntimeException($failure);
++            }
++            $result = curl_exec($curl);
++            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
++            if ($result === false || curl_errno($curl) !== 0 || !is_int($status) || $status < 100 || $status > 599) {
++                throw new \RuntimeException($failure);
++            }
++        } finally {
++            curl_close($curl);
++        }
++
++        // No sleeps, recursion, refresh, ratelimit config/log writes or success inferred from a body.
++        $ok = false;
++        if ($httpmethod === 'get' && $status === 200) {
++            try {
++                $page = json_decode($body, false, 32, JSON_THROW_ON_ERROR);
++                $ok = $page instanceof \stdClass && is_array($page->value ?? null) && count($page->value) <= 999 &&
++                    !property_exists($page, 'error') && !property_exists($page, 'odata.error');
++            } catch (\JsonException $e) {
++                // A malformed200 is not an empty group or a successful read.
++            }
++        } else if ($httpmethod !== 'get' && $status === 204 && $body === '') {
++            $ok = true;
++        }
++        return ['status' => $status, 'body' => $body, 'ok' => $ok];
++    }
++
++    /**
+      * Make an API call.
+      *
+      * @param string $httpmethod The HTTP method to use. get/post/patch/merge/delete.
