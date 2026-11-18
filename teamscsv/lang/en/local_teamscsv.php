@@ -1,0 +1,37 @@
+<?php
+// SPDX-License-Identifier: GPL-3.0-or-later
+defined('MOODLE_INTERNAL') || die();
+$string['pluginname'] = 'Teams CSV connections';
+$string['csvfile'] = 'UTF-8 CSV file (comma separated; maximum 100 records / 1 MiB)';
+$string['preview'] = 'Validate and preview (no connection changes)';
+$string['apply'] = 'Apply connections and stage managed membership';
+$string['queued'] = '{$a} connections saved and membership work staged. No Teams changes were performed by this import. Managed membership is off by default; enabled cron processes bounded work over later runs.';
+$string['warning'] = 'Preview uses the local_o365 Teams cache, not a live Microsoft lookup. Refresh it in Manage Team connections before importing. Header: course_id,team_name. Names must match exactly. Existing connections are never overwritten. Import stages work only. After operator verification and explicit opt-in, managed sync adds course students as members and teachers as owners, and removes or changes only recorded course participants. Unrelated Team owners and members are outside managed scope. Completion may require multiple cron runs. Do not import Teams managed by School Data Sync (SDS).';
+$string['acknowledge'] = 'I verified the displayed Team IDs, refreshed the Teams cache, excluded SDS-managed Teams, stopped cron and other connection/enrolment changes for this import window, and understand that only current course participants establish managed scope; later safe opt-in processes staged work over multiple cron runs.';
+$string['privacy:metadata'] = 'This plugin stores course/Team link scan state, published resource URLs, immutable membership generations, participant user/object IDs, responsibility history, dirty jobs and a daily traversal cursor. Temporary previews use the administrator session. Course/Team mappings are also stored by local_o365; event hints use the Moodle task queue.';
+$string['autolinkssettings'] = 'Optional Teams course links';
+$string['autolinksenabled'] = 'Enable scheduled link discovery';
+$string['autolinksdescription'] = 'Off by default. Scans General channel posts, its class material folder and recordings folders; does not inventory every calendar meeting. Only verified links are published, with no permission changes.';
+$string['autolinkscourses'] = 'Maximum courses per run (1–25)';
+$string['autolinksrequests'] = 'Maximum logical Graph requests per course (1–50)';
+$string['autolinkstask'] = 'Discover Teams course links';
+$string['membershipsettings'] = 'Optional managed Teams membership';
+$string['membershipenabled'] = 'Enable bounded managed membership cron';
+$string['membershipdescription'] = 'Off by default. Enable only after the operator verifies the exact reviewed local_o365 2025040835 three-file patch, refreshes PHP workers, completes the TeamsCSV database upgrade and checks isolation in a quiescent installation window. Each cron tick is eligible, not a promise of completion: events enqueue hints and an independent daily cursor repairs missed events. Only recorded course participants are managed. Review MEMBERSHIP-SYNC.md before enabling; real-backend concurrency and large-Team backlog completion are not proven.';
+$string['membershipcourses'] = 'Maximum fallback registry rows per run (1–25; default 5)';
+$string['membershipjobs'] = 'Maximum due jobs per run (1–2; default 1)';
+$string['membershiprequests'] = 'Maximum total managed Graph requests per run (2–12; default 8)';
+$string['membershipbudgets'] = 'Strict limits; invalid values stop execution. The request budget is shared across jobs, including all safety reads and verification. At most 12 one-attempt requests × 15 seconds = 180 seconds of transport deadlines, plus local costs. Insufficient budgets retain pending work and may prevent large Teams from progressing. Failures back off; inspect task logs, not just cron frequency.';
+$string['membershiptask'] = 'Reconcile bounded managed Teams membership';
+$string['autolinksmeeting'] = 'Teams meeting';
+$string['autolinksrecordings'] = 'Teams recordings';
+$string['tabmeeting'] = 'Reuniones Clases Teams';
+$string['tabrecordings'] = 'Grabaciones Clases';
+$string['tabmaterial'] = 'Material de Clases';
+$string['openmeeting'] = 'Join the class in Teams';
+$string['openrecordings'] = 'Open class recordings';
+$string['openmaterial'] = 'Open class material';
+$string['tablinksempty'] = 'No Teams links are available for this course yet.';
+$string['navmeeting'] = 'Reuniones';
+$string['navrecordings'] = 'Grabaciones';
+$string['navmaterial'] = 'Material';
